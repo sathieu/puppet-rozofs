@@ -2,7 +2,7 @@
 
 This is a Puppet module for rozofs based on the second generation layout ("NextGen") of Example42 Puppet Modules.
 
-Made by Alessandro Franceschi / Lab42
+Made by Mathieu Parend, based on Example42 modules from Alessandro Franceschi / Lab42
 
 Official site: http://www.example42.com
 
