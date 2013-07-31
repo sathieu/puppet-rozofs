@@ -9,7 +9,7 @@
 # Additional options that are passed to the Daemon.
 
 # Agents to be started
-AGENTS="<%= (@bool_manage_exportd ? 'exportd ' : '') + (@bool_manage_storaged ? 'storaged ' : '') + (@bool_manage_rozofsmount ? 'rozofsmount ' : '') %>"
+AGENTS="<%= (@bool_manage_exportd ? 'exportd ' : '') + (@bool_manage_storaged ? 'storaged ' : '') + (@bool_manage_rozofsmount ? 'rozofsmount' : '') %>"
 
 # Does this agent manage exportd through pacemaker (default false)
 PACEMAKER=<%= @bool_use_pacemaker ? 'true' : 'false' %>
