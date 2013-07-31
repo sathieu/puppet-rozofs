@@ -265,6 +265,34 @@ class rozofs (
     },
   }
 
+  # Don't start exportd service on boot when using pacemaker
+  $manage_exportd_service_enable = $rozofs::bool_disableboot ? {
+    true    => false,
+    default => $rozofs::bool_disable ? {
+      true    => false,
+      default => $rozofs::bool_absent ? {
+        true  => false,
+        false => $rozofs::bool_use_pacemaker ? {
+          true  => false,
+          false => true,
+        },
+      },
+    },
+  }
+
+  # Don't start exportd service when using pacemaker
+  # as we don't know on which node exportd should be running
+  $manage_exportd_service_ensure = $rozofs::bool_disable ? {
+    true    => 'stopped',
+    default =>  $rozofs::bool_absent ? {
+      true    => 'stopped',
+      default => $rozofs::bool_use_pacemaker ? {
+          true  => undef,
+          false => true,
+      },
+    },
+  }
+
   $manage_service_autorestart = $rozofs::bool_service_autorestart ? {
     true    => Service['rozofs-manager-agent'],
     false   => undef,
@@ -324,13 +352,11 @@ class rozofs (
       noop       => $rozofs::bool_noops,
     }
   }
-  # Don't start exportd service when using pacemaker
-  # as we don't know on which node exportd shoul be running
-  if $bool_manage_exportd and !$bool_use_pacemaker {
+  if $bool_manage_exportd {
     service { 'rozofs-exportd':
-      ensure     => $rozofs::manage_service_ensure,
+      ensure     => $rozofs::manage_exportd_service_ensure,
       name       => $rozofs::exportd_service,
-      enable     => $rozofs::manage_service_enable,
+      enable     => $rozofs::manage_exportd_service_enable,
       hasstatus  => $rozofs::service_status,
       pattern    => $rozofs::process,
       require    => Package[$rozofs::exportd_package],
