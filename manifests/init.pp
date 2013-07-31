@@ -319,7 +319,9 @@ class rozofs (
       noop       => $rozofs::bool_noops,
     }
   }
-  if $bool_manage_exportd {
+  # Don't start exportd service when using pacemaker
+  # as we don't know on which node exportd shoul be running
+  if $bool_manage_exportd and !$bool_use_pacemaker {
     service { 'rozofs-exportd':
       ensure     => $rozofs::manage_service_ensure,
       name       => $rozofs::exportd_service,
