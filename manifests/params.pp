@@ -66,8 +66,11 @@ class rozofs::params {
   }
 
   $config_file_init = $::operatingsystem ? {
-    /(?i:Debian|Ubuntu|Mint)/ => '/etc/default/rozofs',
-    default                   => '/etc/sysconfig/rozofs',
+    /(?i:Debian|Ubuntu|Mint)/ => '/etc/default/rozofs-manager-agent',
+    default                   => '/etc/sysconfig/rozofs-manager-agent',
+  }
+  $config_file_init_template = $::operatingsystem ? {
+    default                   => 'rozofs/rozofs-manager-agent.default',
   }
 
   $pid_file = $::operatingsystem ? {

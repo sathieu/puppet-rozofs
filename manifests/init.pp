@@ -150,7 +150,11 @@
 #   The name of the user rozofs runs with. Used by puppi and monitor.
 #
 # [*config_file_init*]
-#   Path of configuration file sourced by init script
+#   Path of configuration file sourced by the rozofs-manager-agent init script
+#
+# [*config_file_init_template*]
+#   Sets the path to the template to use as content for init configuration file
+#   If defined, rozofs-manager-agent init config file has: content => content("$config_file_init_template")
 #
 # [*pid_file*]
 #   Path of pid file. Used by monitor
@@ -179,48 +183,49 @@
 # See README for usage patterns.
 #
 class rozofs (
-  $is_manager_agent    = params_lookup( 'is_manager_agent' ),
-  $manage_exportd      = params_lookup( 'manage_exportd' ),
-  $manage_storaged     = params_lookup( 'manage_storaged' ),
-  $manage_rozofsmount  = params_lookup( 'manage_rozofsmount' ),
-  $use_pacemaker       = params_lookup( 'use_pacemaker' ),
-  $my_class            = params_lookup( 'my_class' ),
-  $service_autorestart = params_lookup( 'service_autorestart' , 'global' ),
-  $options             = params_lookup( 'options' ),
-  $version             = params_lookup( 'version' ),
-  $absent              = params_lookup( 'absent' ),
-  $disable             = params_lookup( 'disable' ),
-  $disableboot         = params_lookup( 'disableboot' ),
-  $monitor             = params_lookup( 'monitor' , 'global' ),
-  $monitor_tool        = params_lookup( 'monitor_tool' , 'global' ),
-  $monitor_target      = params_lookup( 'monitor_target' , 'global' ),
-  $puppi               = params_lookup( 'puppi' , 'global' ),
-  $puppi_helper        = params_lookup( 'puppi_helper' , 'global' ),
-  $firewall            = params_lookup( 'firewall' , 'global' ),
-  $firewall_tool       = params_lookup( 'firewall_tool' , 'global' ),
-  $firewall_src        = params_lookup( 'firewall_src' , 'global' ),
-  $firewall_dst        = params_lookup( 'firewall_dst' , 'global' ),
-  $debug               = params_lookup( 'debug' , 'global' ),
-  $audit_only          = params_lookup( 'audit_only' , 'global' ),
-  $noops               = params_lookup( 'noops' ),
-  $manager_package     = params_lookup( 'manager_package' ),
-  $exportd_package     = params_lookup( 'exportd_package' ),
-  $storaged_package    = params_lookup( 'storaged_package' ),
-  $rozofsmount_package = params_lookup( 'rozofsmount_package' ),
-  $manager_service     = params_lookup( 'manager_service' ),
-  $exportd_service     = params_lookup( 'exportd_service' ),
-  $storaged_service    = params_lookup( 'storaged_service' ),
-  $service_status      = params_lookup( 'service_status' ),
-  $process             = params_lookup( 'process' ),
-  $process_args        = params_lookup( 'process_args' ),
-  $process_user        = params_lookup( 'process_user' ),
-  $config_file_init    = params_lookup( 'config_file_init' ),
-  $pid_file            = params_lookup( 'pid_file' ),
-  $data_dir            = params_lookup( 'data_dir' ),
-  $log_dir             = params_lookup( 'log_dir' ),
-  $log_file            = params_lookup( 'log_file' ),
-  $port                = params_lookup( 'port' ),
-  $protocol            = params_lookup( 'protocol' )
+  $is_manager_agent          = params_lookup( 'is_manager_agent' ),
+  $manage_exportd            = params_lookup( 'manage_exportd' ),
+  $manage_storaged           = params_lookup( 'manage_storaged' ),
+  $manage_rozofsmount        = params_lookup( 'manage_rozofsmount' ),
+  $use_pacemaker             = params_lookup( 'use_pacemaker' ),
+  $my_class                  = params_lookup( 'my_class' ),
+  $service_autorestart       = params_lookup( 'service_autorestart' , 'global' ),
+  $options                   = params_lookup( 'options' ),
+  $version                   = params_lookup( 'version' ),
+  $absent                    = params_lookup( 'absent' ),
+  $disable                   = params_lookup( 'disable' ),
+  $disableboot               = params_lookup( 'disableboot' ),
+  $monitor                   = params_lookup( 'monitor' , 'global' ),
+  $monitor_tool              = params_lookup( 'monitor_tool' , 'global' ),
+  $monitor_target            = params_lookup( 'monitor_target' , 'global' ),
+  $puppi                     = params_lookup( 'puppi' , 'global' ),
+  $puppi_helper              = params_lookup( 'puppi_helper' , 'global' ),
+  $firewall                  = params_lookup( 'firewall' , 'global' ),
+  $firewall_tool             = params_lookup( 'firewall_tool' , 'global' ),
+  $firewall_src              = params_lookup( 'firewall_src' , 'global' ),
+  $firewall_dst              = params_lookup( 'firewall_dst' , 'global' ),
+  $debug                     = params_lookup( 'debug' , 'global' ),
+  $audit_only                = params_lookup( 'audit_only' , 'global' ),
+  $noops                     = params_lookup( 'noops' ),
+  $manager_package           = params_lookup( 'manager_package' ),
+  $exportd_package           = params_lookup( 'exportd_package' ),
+  $storaged_package          = params_lookup( 'storaged_package' ),
+  $rozofsmount_package       = params_lookup( 'rozofsmount_package' ),
+  $manager_service           = params_lookup( 'manager_service' ),
+  $exportd_service           = params_lookup( 'exportd_service' ),
+  $storaged_service          = params_lookup( 'storaged_service' ),
+  $service_status            = params_lookup( 'service_status' ),
+  $process                   = params_lookup( 'process' ),
+  $process_args              = params_lookup( 'process_args' ),
+  $process_user              = params_lookup( 'process_user' ),
+  $config_file_init          = params_lookup( 'config_file_init' ),
+  $config_file_init_template = params_lookup( 'config_file_init_template' ),
+  $pid_file                  = params_lookup( 'pid_file' ),
+  $data_dir                  = params_lookup( 'data_dir' ),
+  $log_dir                   = params_lookup( 'log_dir' ),
+  $log_file                  = params_lookup( 'log_file' ),
+  $port                      = params_lookup( 'port' ),
+  $protocol                  = params_lookup( 'protocol' )
   ) inherits rozofs::params {
 
   $bool_service_autorestart=any2bool($service_autorestart)
@@ -261,7 +266,7 @@ class rozofs (
   }
 
   $manage_service_autorestart = $rozofs::bool_service_autorestart ? {
-    true    => Service[rozofs],
+    true    => Service['rozofs-manager-agent'],
     false   => undef,
   }
 
@@ -341,6 +346,21 @@ class rozofs (
       pattern    => $rozofs::process,
       require    => Package[$rozofs::storaged_package],
       noop       => $rozofs::bool_noops,
+    }
+  }
+
+  if $bool_is_manager_agent {
+    file { 'rozofs-manager-agent.initconfig':
+      ensure  => $rozofs::manage_file,
+      path    => $rozofs::config_file_init,
+      mode    => '0755',
+      owner   => 'root',
+      group   => 'root',
+      require => Package[$rozofs::manager_package],
+      notify  => $rozofs::manage_service_autorestart,
+      content => template($config_file_init_template),
+      audit   => $rozofs::manage_audit,
+      noop    => $rozofs::bool_noops,
     }
   }
 
