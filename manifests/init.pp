@@ -353,7 +353,7 @@ class rozofs (
     file { 'rozofs-manager-agent.initconfig':
       ensure  => $rozofs::manage_file,
       path    => $rozofs::config_file_init,
-      mode    => '0755',
+      mode    => '0644',
       owner   => 'root',
       group   => 'root',
       require => Package[$rozofs::manager_package],
