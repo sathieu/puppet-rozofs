@@ -14,4 +14,3 @@ AGENTS="<%= (@bool_manage_exportd ? 'exportd ' : '') + (@bool_manage_storaged ? 
 # Does this agent manage exportd through pacemaker (default false)
 PACEMAKER=<%= @bool_use_pacemaker ? 'true' : 'false' %>
 
-
