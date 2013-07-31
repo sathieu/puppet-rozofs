@@ -14,14 +14,42 @@
 #
 class rozofs::params {
 
+  ### RozoFS specific parameters
+  $is_manager_agent = true
+  $manage_exportd = false
+  $manage_storaged = true
+  $manage_rozofsmount = true
+  $use_pacemaker = false
+
+  # Optional package
+  $rozodebug = false
+
   ### Application related parameters
 
-  $package = $::operatingsystem ? {
-    default => 'rozofs',
+  $manager_package = $::operatingsystem ? {
+    default => 'rozofs-manager-agent',
+  }
+  $exportd_package = $::operatingsystem ? {
+    default => 'rozofs-exportd',
+  }
+  $storaged_package = $::operatingsystem ? {
+    default => 'rozofs-storaged',
+  }
+  $rozofsmount_package = $::operatingsystem ? {
+    default => 'rozofs-rozofsmount',
   }
 
-  $service = $::operatingsystem ? {
-    default => 'rozofs',
+  $manager_service = $::operatingsystem ? {
+    default => 'rozofs-manager-agent',
+  }
+  $exportd_service = $::operatingsystem ? {
+    default => 'rozofs-exportd',
+  }
+  $storaged_service = $::operatingsystem ? {
+    default => 'rozofs-storaged',
+  }
+  $rozofsmount_service = $::operatingsystem ? {
+    default => 'rozofs-rozofsmount',
   }
 
   $service_status = $::operatingsystem ? {
@@ -38,26 +66,6 @@ class rozofs::params {
 
   $process_user = $::operatingsystem ? {
     default => 'rozofs',
-  }
-
-  $config_dir = $::operatingsystem ? {
-    default => '/etc/rozofs',
-  }
-
-  $config_file = $::operatingsystem ? {
-    default => '/etc/rozofs/rozofs.conf',
-  }
-
-  $config_file_mode = $::operatingsystem ? {
-    default => '0644',
-  }
-
-  $config_file_owner = $::operatingsystem ? {
-    default => 'root',
-  }
-
-  $config_file_group = $::operatingsystem ? {
-    default => 'root',
   }
 
   $config_file_init = $::operatingsystem ? {
@@ -86,10 +94,6 @@ class rozofs::params {
 
   # General Settings
   $my_class = ''
-  $source = ''
-  $source_dir = ''
-  $source_dir_purge = false
-  $template = ''
   $options = ''
   $service_autorestart = true
   $version = 'present'

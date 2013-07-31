@@ -5,6 +5,23 @@
 #
 # == Parameters
 #
+# RozoFS specific parameters
+#
+# [*is_manager_agent*]
+#   Install rozofs-manager-agent
+#
+# [*manage_exportd*]
+#   Install rozofs-exportd and enable it in manager
+#
+# [*manage_storaged*]
+#   Install rozofs-storaged and enable it in manager
+#
+# [*manage_rozofsmount*]
+#   Install rozofs-rozofsmount and enable it in manager
+#
+# [*use_pacemaker*]
+#   Enable pacemaker in manager
+#
 # Standard class parameters
 # Define the general class behaviour and customizations
 #
@@ -12,29 +29,6 @@
 #   Name of a custom class to autoload to manage module's customizations
 #   If defined, rozofs class will automatically "include $my_class"
 #   Can be defined also by the (top scope) variable $rozofs_myclass
-#
-# [*source*]
-#   Sets the content of source parameter for main configuration file
-#   If defined, rozofs main config file will have the param: source => $source
-#   Can be defined also by the (top scope) variable $rozofs_source
-#
-# [*source_dir*]
-#   If defined, the whole rozofs configuration directory content is retrieved
-#   recursively from the specified source
-#   (source => $source_dir , recurse => true)
-#   Can be defined also by the (top scope) variable $rozofs_source_dir
-#
-# [*source_dir_purge*]
-#   If set to true (default false) the existing configuration directory is
-#   mirrored with the content retrieved from source_dir
-#   (source => $source_dir , recurse => true , purge => true)
-#   Can be defined also by the (top scope) variable $rozofs_source_dir_purge
-#
-# [*template*]
-#   Sets the path to the template to use as content for main configuration file
-#   If defined, rozofs main config file has: content => content("$template")
-#   Note source and template parameters are mutually exclusive: don't use both
-#   Can be defined also by the (top scope) variable $rozofs_template
 #
 # [*options*]
 #   An hash of custom options to be used in templates for arbitrary settings.
@@ -136,8 +130,8 @@
 # Set and override them only if you know what you're doing.
 # Note also that you can't override/set them via top scope variables.
 #
-# [*package*]
-#   The name of rozofs package
+# [*manager_package*] [*exportd_package*] [*storaged_package*] [*rozofsmount_package*]
+#   The name of the different rozofs packages
 #
 # [*service*]
 #   The name of rozofs service
@@ -155,21 +149,6 @@
 # [*process_user*]
 #   The name of the user rozofs runs with. Used by puppi and monitor.
 #
-# [*config_dir*]
-#   Main configuration directory. Used by puppi
-#
-# [*config_file*]
-#   Main configuration file path
-#
-# [*config_file_mode*]
-#   Main configuration file path mode
-#
-# [*config_file_owner*]
-#   Main configuration file path owner
-#
-# [*config_file_group*]
-#   Main configuration file path group
-#
 # [*config_file_init*]
 #   Path of configuration file sourced by init script
 #
@@ -180,7 +159,7 @@
 #   Path of application data directory. Used by puppi
 #
 # [*log_dir*]
-#   Base logs directory. Used by puppi
+#   Base logs directory. Used by pupp
 #
 # [*log_file*]
 #   Log file(s). Used by puppi
@@ -200,11 +179,12 @@
 # See README for usage patterns.
 #
 class rozofs (
+  $is_manager_agent    = params_lookup( 'is_manager_agent' ),
+  $manage_exportd      = params_lookup( 'manage_exportd' ),
+  $manage_storaged     = params_lookup( 'manage_storaged' ),
+  $manage_rozofsmount  = params_lookup( 'manage_rozofsmount' ),
+  $use_pacemaker       = params_lookup( 'use_pacemaker' ),
   $my_class            = params_lookup( 'my_class' ),
-  $source              = params_lookup( 'source' ),
-  $source_dir          = params_lookup( 'source_dir' ),
-  $source_dir_purge    = params_lookup( 'source_dir_purge' ),
-  $template            = params_lookup( 'template' ),
   $service_autorestart = params_lookup( 'service_autorestart' , 'global' ),
   $options             = params_lookup( 'options' ),
   $version             = params_lookup( 'version' ),
@@ -223,17 +203,18 @@ class rozofs (
   $debug               = params_lookup( 'debug' , 'global' ),
   $audit_only          = params_lookup( 'audit_only' , 'global' ),
   $noops               = params_lookup( 'noops' ),
-  $package             = params_lookup( 'package' ),
-  $service             = params_lookup( 'service' ),
+  $manager_package     = params_lookup( 'manager_package' ),
+  $exportd_package     = params_lookup( 'exportd_package' ),
+  $storaged_package    = params_lookup( 'storaged_package' ),
+  $rozofsmount_package = params_lookup( 'rozofsmount_package' ),
+  $manager_service     = params_lookup( 'manager_service' ),
+  $exportd_service     = params_lookup( 'exportd_service' ),
+  $storaged_service    = params_lookup( 'storaged_service' ),
+  $rozofsmount_service = params_lookup( 'rozofsmount_service' ),
   $service_status      = params_lookup( 'service_status' ),
   $process             = params_lookup( 'process' ),
   $process_args        = params_lookup( 'process_args' ),
   $process_user        = params_lookup( 'process_user' ),
-  $config_dir          = params_lookup( 'config_dir' ),
-  $config_file         = params_lookup( 'config_file' ),
-  $config_file_mode    = params_lookup( 'config_file_mode' ),
-  $config_file_owner   = params_lookup( 'config_file_owner' ),
-  $config_file_group   = params_lookup( 'config_file_group' ),
   $config_file_init    = params_lookup( 'config_file_init' ),
   $pid_file            = params_lookup( 'pid_file' ),
   $data_dir            = params_lookup( 'data_dir' ),
@@ -243,7 +224,6 @@ class rozofs (
   $protocol            = params_lookup( 'protocol' )
   ) inherits rozofs::params {
 
-  $bool_source_dir_purge=any2bool($source_dir_purge)
   $bool_service_autorestart=any2bool($service_autorestart)
   $bool_absent=any2bool($absent)
   $bool_disable=any2bool($disable)
@@ -255,12 +235,13 @@ class rozofs (
   $bool_audit_only=any2bool($audit_only)
   $bool_noops=any2bool($noops)
 
-  ### Definition of some variables used in the module
-  $manage_package = $rozofs::bool_absent ? {
-    true  => 'absent',
-    false => $rozofs::version,
-  }
+  $bool_is_manager_agent = any2bool($rozofs::is_manager_agent)
+  $bool_manage_exportd = any2bool($rozofs::manage_exportd)
+  $bool_manage_storaged = any2bool($rozofs::manage_storaged)
+  $bool_manage_rozofsmount = any2bool($rozofs::manage_rozofsmount)
+  $bool_use_pacemaker = any2bool($rozofs::use_pacemaker)
 
+  ### Definition of some variables used in the module
   $manage_service_enable = $rozofs::bool_disableboot ? {
     true    => false,
     default => $rozofs::bool_disable ? {
@@ -310,66 +291,66 @@ class rozofs (
     false => undef,
   }
 
-  $manage_file_replace = $rozofs::bool_audit_only ? {
-    true  => false,
-    false => true,
-  }
-
-  $manage_file_source = $rozofs::source ? {
-    ''        => undef,
-    default   => $rozofs::source,
-  }
-
-  $manage_file_content = $rozofs::template ? {
-    ''        => undef,
-    default   => template($rozofs::template),
-  }
-
   ### Managed resources
-  package { $rozofs::package:
-    ensure  => $rozofs::manage_package,
+  package { $rozofs::manager_package:
+    ensure  => bool2ensure($rozofs::is_manager_agent),
+    noop    => $rozofs::bool_noops,
+  }
+  package { $rozofs::exportd_package:
+    ensure  => bool2ensure($rozofs::manage_exportd),
+    noop    => $rozofs::bool_noops,
+  }
+  package { $rozofs::storaged_package:
+    ensure  => bool2ensure($rozofs::manage_storaged),
+    noop    => $rozofs::bool_noops,
+  }
+  package { $rozofs::rozofsmount_package:
+    ensure  => bool2ensure($rozofs::manage_rozofsmount),
     noop    => $rozofs::bool_noops,
   }
 
-  service { 'rozofs':
-    ensure     => $rozofs::manage_service_ensure,
-    name       => $rozofs::service,
-    enable     => $rozofs::manage_service_enable,
-    hasstatus  => $rozofs::service_status,
-    pattern    => $rozofs::process,
-    require    => Package[$rozofs::package],
-    noop       => $rozofs::bool_noops,
+  if $bool_is_manager_agent {
+    service { 'rozofs-manager-agent':
+      ensure     => $rozofs::manage_service_ensure,
+      name       => $rozofs::manager_service,
+      enable     => $rozofs::manage_service_enable,
+      hasstatus  => $rozofs::service_status,
+      pattern    => $rozofs::process,
+      require    => Package[$rozofs::manager_package],
+      noop       => $rozofs::bool_noops,
+    }
   }
-
-  file { 'rozofs.conf':
-    ensure  => $rozofs::manage_file,
-    path    => $rozofs::config_file,
-    mode    => $rozofs::config_file_mode,
-    owner   => $rozofs::config_file_owner,
-    group   => $rozofs::config_file_group,
-    require => Package[$rozofs::package],
-    notify  => $rozofs::manage_service_autorestart,
-    source  => $rozofs::manage_file_source,
-    content => $rozofs::manage_file_content,
-    replace => $rozofs::manage_file_replace,
-    audit   => $rozofs::manage_audit,
-    noop    => $rozofs::bool_noops,
+  if $bool_manage_exportd {
+    service { 'rozofs-exportd':
+      ensure     => $rozofs::manage_service_ensure,
+      name       => $rozofs::exportd_service,
+      enable     => $rozofs::manage_service_enable,
+      hasstatus  => $rozofs::service_status,
+      pattern    => $rozofs::process,
+      require    => Package[$rozofs::exportd_package],
+      noop       => $rozofs::bool_noops,
+    }
   }
-
-  # The whole rozofs configuration directory can be recursively overriden
-  if $rozofs::source_dir {
-    file { 'rozofs.dir':
-      ensure  => directory,
-      path    => $rozofs::config_dir,
-      require => Package[$rozofs::package],
-      notify  => $rozofs::manage_service_autorestart,
-      source  => $rozofs::source_dir,
-      recurse => true,
-      purge   => $rozofs::bool_source_dir_purge,
-      force   => $rozofs::bool_source_dir_purge,
-      replace => $rozofs::manage_file_replace,
-      audit   => $rozofs::manage_audit,
-      noop    => $rozofs::bool_noops,
+  if $bool_manage_storaged {
+    service { 'rozofs-storaged':
+      ensure     => $rozofs::manage_service_ensure,
+      name       => $rozofs::storaged_service,
+      enable     => $rozofs::manage_service_enable,
+      hasstatus  => $rozofs::service_status,
+      pattern    => $rozofs::process,
+      require    => Package[$rozofs::storaged_package],
+      noop       => $rozofs::bool_noops,
+    }
+  }
+  if $bool_manage_rozofsmount {
+    service { 'rozofs-rozofsmount':
+      ensure     => $rozofs::manage_service_ensure,
+      name       => $rozofs::rozofsmount_service,
+      enable     => $rozofs::manage_service_enable,
+      hasstatus  => $rozofs::service_status,
+      pattern    => $rozofs::process,
+      require    => Package[$rozofs::rozofsmount_package],
+      noop       => $rozofs::bool_noops,
     }
   }
 
