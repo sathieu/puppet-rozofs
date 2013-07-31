@@ -133,8 +133,8 @@
 # [*manager_package*] [*exportd_package*] [*storaged_package*] [*rozofsmount_package*]
 #   The name of the different rozofs packages
 #
-# [*service*]
-#   The name of rozofs service
+# [*manager_service*] [*exportd_service*] [*storaged_service*]
+#   The names of rozofs services
 #
 # [*service_status*]
 #   If the rozofs service init script supports status argument
@@ -210,7 +210,6 @@ class rozofs (
   $manager_service     = params_lookup( 'manager_service' ),
   $exportd_service     = params_lookup( 'exportd_service' ),
   $storaged_service    = params_lookup( 'storaged_service' ),
-  $rozofsmount_service = params_lookup( 'rozofsmount_service' ),
   $service_status      = params_lookup( 'service_status' ),
   $process             = params_lookup( 'process' ),
   $process_args        = params_lookup( 'process_args' ),
@@ -342,18 +341,6 @@ class rozofs (
       noop       => $rozofs::bool_noops,
     }
   }
-  if $bool_manage_rozofsmount {
-    service { 'rozofs-rozofsmount':
-      ensure     => $rozofs::manage_service_ensure,
-      name       => $rozofs::rozofsmount_service,
-      enable     => $rozofs::manage_service_enable,
-      hasstatus  => $rozofs::service_status,
-      pattern    => $rozofs::process,
-      require    => Package[$rozofs::rozofsmount_package],
-      noop       => $rozofs::bool_noops,
-    }
-  }
-
 
   ### Include custom class if $my_class is set
   if $rozofs::my_class {

@@ -48,9 +48,6 @@ class rozofs::params {
   $storaged_service = $::operatingsystem ? {
     default => 'rozofs-storaged',
   }
-  $rozofsmount_service = $::operatingsystem ? {
-    default => 'rozofs-rozofsmount',
-  }
 
   $service_status = $::operatingsystem ? {
     default => true,
