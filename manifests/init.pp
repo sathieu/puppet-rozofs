@@ -224,6 +224,7 @@ class rozofs (
   $data_dir                  = params_lookup( 'data_dir' ),
   $log_dir                   = params_lookup( 'log_dir' ),
   $log_file                  = params_lookup( 'log_file' ),
+  $updatedb_file             = params_lookup( 'updatedb_file' ),
   $port                      = params_lookup( 'port' ),
   $protocol                  = params_lookup( 'protocol' )
   ) inherits rozofs::params {
@@ -387,6 +388,15 @@ class rozofs (
       content => template($config_file_init_template),
       audit   => $rozofs::manage_audit,
       noop    => $rozofs::bool_noops,
+    }
+  }
+
+  if $rozofs::updatedb_file {
+    # Don't scan RozoFS mountpoints (potentially huge)
+    exec {
+      'updatedb-prune-rozofs':
+        command => "sed -i 's/PRUNEFS=\"\\(.*\\)\"/PRUNEFS=\"\\1 fuse.rozofs\"/' '${rozofs::updatedb_file}'",
+        unless  => "grep -q fuse.rozofs '${rozofs::updatedb_file}'";
     }
   }
 

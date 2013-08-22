@@ -89,6 +89,10 @@ class rozofs::params {
     default => '/var/log/rozofs/rozofs.log',
   }
 
+  $updatedb_file = $::operatingsystem ? {
+    default => '/etc/updatedb.conf',
+  }
+
   $port = '42'
   $protocol = 'tcp'
 
