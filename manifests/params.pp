@@ -15,11 +15,13 @@
 class rozofs::params {
 
   ### RozoFS specific parameters
+  $exportd_ipaddress = false
   $is_manager_agent = true
   $manage_exportd = false
   $manage_storaged = true
   $manage_rozofsmount = true
   $use_pacemaker = false
+  $layout = 0
 
   # Optional package
   $rozodebug = false

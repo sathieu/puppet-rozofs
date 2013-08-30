@@ -7,6 +7,10 @@
 #
 # RozoFS specific parameters
 #
+# [*exportd_ipaddress*]
+#   IP address of the RozoFS exportd node (can be a virtual ip, managed by
+#   pacemaker)
+#
 # [*is_manager_agent*]
 #   Install rozofs-manager-agent
 #
@@ -21,6 +25,9 @@
 #
 # [*use_pacemaker*]
 #   Enable pacemaker in manager
+#
+# [*layout*]
+#   RozoFS layout. See EXPORT.CONF(5) for more information.
 #
 # Standard class parameters
 # Define the general class behaviour and customizations
@@ -183,11 +190,13 @@
 # See README for usage patterns.
 #
 class rozofs (
+  $exportd_ipaddress         = params_lookup( 'exportd_ipaddress' ),
   $is_manager_agent          = params_lookup( 'is_manager_agent' ),
   $manage_exportd            = params_lookup( 'manage_exportd' ),
   $manage_storaged           = params_lookup( 'manage_storaged' ),
   $manage_rozofsmount        = params_lookup( 'manage_rozofsmount' ),
   $use_pacemaker             = params_lookup( 'use_pacemaker' ),
+  $layout                    = params_lookup( 'layout' ),
   $my_class                  = params_lookup( 'my_class' ),
   $service_autorestart       = params_lookup( 'service_autorestart' , 'global' ),
   $options                   = params_lookup( 'options' ),
@@ -340,6 +349,14 @@ class rozofs (
   package { $rozofs::rozofsmount_package:
     ensure  => bool2ensure($rozofs::manage_rozofsmount),
     noop    => $rozofs::bool_noops,
+  }
+
+  if $rozofs::layout and $rozofs::exportd_ipaddress and $rozofs::bool_is_manager_agent {
+    exec {
+      'rozo-layout':
+        command => "rozo layout -E '${rozofs::exportd_ipaddress}' '${rozofs::layout}'",
+        unless  => "test `rozo  config -E '${rozofs::exportd_ipaddress}' --roles exportd | grep '^\\s\\+LAYOUT:' | sed 's/^\\s\\+LAYOUT:\\s*//'` = '${rozofs::layout}'",
+    }
   }
 
   if $bool_is_manager_agent {
