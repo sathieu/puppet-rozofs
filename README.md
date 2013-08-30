@@ -14,6 +14,30 @@ This module requires functions provided by the Example42 Puppi module (you need 
 
 For detailed info about the logic and usage patterns of Example42 modules check the DOCS directory on Example42 main modules set.
 
+## USAGE - Complete example
+
+        class {
+          'rozofs':
+            exportd_ipaddress => '10.1.1.1', # IP address of node1
+            manage_exportd    => $::hostname in ['node1'],
+            use_pacemaker     => false,
+            layout            => 1,
+        }
+        rozofs::volume {
+          '1':
+            nodes => [
+              '10.1.1.1',
+              '10.1.1.2',
+              '10.1.1.3',
+              '10.1.1.4',
+              '10.1.1.5',
+              '10.1.1.6',
+              '10.1.1.7',
+              '10.1.1.8',
+            ];
+        }
+
+
 
 ## USAGE - Basic management
 
