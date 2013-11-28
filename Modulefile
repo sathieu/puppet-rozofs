@@ -1,10 +1,10 @@
-name 'example42-rozofs'
+name 'sathieu-rozofs'
 version '1.0.0'
 
 author 'Mathieu Parent'
 license 'Apache2'
 project_page 'http://www.example42.com'
-source 'https://github.com/example42/puppet-rozofs'
+source 'https://github.com/sathieu/puppet-rozofs'
 summary 'Puppet module for rozofs'
 description 'This module installs and manages rozofs. Check README for details.'
 dependency 'example42/puppi', '>=2.0.0'
