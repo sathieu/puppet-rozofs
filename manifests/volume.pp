@@ -28,7 +28,7 @@ define rozofs::volume (
   }
   exec {
     "rozo-expand-vid-${name}":
-      command => inline_template('rozo expand -E "<%= scope.lookupvar("rozofs::exportd_ipaddress") %>" --vid "<%= @name %>" <%= @nodes.join("\n") %>'),
-      unless  => "test `rozo  config -E '${rozofs::exportd_ipaddress}' --roles exportd | grep '^\\s\\+VOLUME:' | sed 's/^\\s\\+VOLUME:\\s*//'` = '${name}'",
+      command => inline_template('rozo expand -E "<%= scope.lookupvar("rozofs::exportd_ipaddress") %>" -v "<%= @name %>" <%= @nodes.join(" ") %>'),
+      unless  => "rozo volume -E '${rozofs::exportd_ipaddress}' get <%= @name %> | grep -q '^- VOLUME <%= @name %>:$'",
   }
 }
