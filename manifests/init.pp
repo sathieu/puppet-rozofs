@@ -354,8 +354,8 @@ class rozofs (
   if $rozofs::layout and $rozofs::exportd_ipaddress and $rozofs::bool_is_manager_agent {
     exec {
       'rozo-layout':
-        command => "rozo layout -E '${rozofs::exportd_ipaddress}' '${rozofs::layout}'",
-        unless  => "test `rozo  config -E '${rozofs::exportd_ipaddress}' --roles exportd | grep '^\\s\\+LAYOUT:' | sed 's/^\\s\\+LAYOUT:\\s*//'` = '${rozofs::layout}'",
+        command => "rozo layout -E '${rozofs::exportd_ipaddress}' set '${rozofs::layout}'",
+        unless  => "rozo layout -E '${rozofs::exportd_ipaddress}' get | grep '^layout ${rozofs::layout}:'",
     }
   }
 
