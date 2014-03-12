@@ -74,6 +74,14 @@ define rozofs::export (
         unless  => "rozo export -E '${rozofs::exportd_ipaddress}' list | grep '^\\s*-\\s*{root:' | grep '/${name}}\$'",
     }
   }
+  $mountpoint_directory_ensure = $ensure ? {
+    'absent'  => 'absent',
+    default   => 'directory',
+  }
+  file {
+    "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}":
+      ensure => $mountpoint_directory_ensure;
+  }
   mount {
     "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}":
       ensure  => $ensure,
