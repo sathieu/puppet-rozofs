@@ -62,9 +62,11 @@ define rozofs::export (
     $hquota_arg = ''
   }
   if $ensure == 'absent' {
+    exec {
       "rozo-export-remove-${name}":
         command => "echo 'You need to remove export ${name} manually' ; false",
         onlyif  => "rozo export -E '${rozofs::exportd_ipaddress}' list | grep '^\\s*-\\s*{root:' | grep '/${name}}\$'",
+    }
   } else {
     exec {
       "rozo-export-create-${name}":
