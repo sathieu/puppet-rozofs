@@ -55,7 +55,7 @@ define rozofs::export (
   }
   exec {
     "rozo-export-create-${name}":
-      command => "rozo export -E '${rozofs::exportd_ipaddress}' create -n '${name}' ${password_arg} ${squota_arg} ${hquota_arg}",
+      command => "rozo export -E '${rozofs::exportd_ipaddress}' create -n '${name}' ${password_arg} ${squota_arg} ${hquota_arg} ${vid}",
       unless  => "rozo export -E '${rozofs::exportd_ipaddress}' list | grep '^\\s*-\\s*{root:' | grep '/${name}}\$'",
   }
 }
