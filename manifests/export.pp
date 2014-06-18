@@ -33,6 +33,7 @@ define rozofs::export (
   $squota = undef,
   $hquota = undef,
   $options = 'posixlock,bsdlock,rozofsshaper=0',
+  $instance = undef,
 ) {
   if !$rozofs::exportd_ipaddress {
     fail('$rozofs::exportd_ipaddress is mandatory')
@@ -44,7 +45,7 @@ define rozofs::export (
     fail("Rozofs::Volume[${vid}] is missing")
   }
   if !($ensure in ['defined', 'present', 'unmounted', 'absent', 'mounted']) {
-    fail("Parameter \$ensure should be one of: defined (also called present), unmounted, absent, mounted")
+    fail('Parameter $ensure should be one of: defined (also called present), unmounted, absent, mounted')
   }
   if $password {
     $password_arg = "-p '${password}'"
@@ -81,6 +82,11 @@ define rozofs::export (
   file {
     "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}":
       ensure => $mountpoint_directory_ensure;
+  }
+  $mount_instance = $instance ? {
+    undef    => '',
+    /[0-9]+/ => ",instance=${instance}",
+    default  => fail('Parameter $instance should be an integer or undef'),
   }
   mount {
     "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}":
