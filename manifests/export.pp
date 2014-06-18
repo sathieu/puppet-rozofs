@@ -93,7 +93,7 @@ define rozofs::export (
       ensure  => $ensure,
       device  => 'rozofsmount',
       fstype  => 'rozofs',
-      options => "noauto,exporthost=${rozofs::exportd_ipaddress},exportpath=/srv/rozofs/exports/${name},${options}",
+      options => "noauto,exporthost=${rozofs::exportd_ipaddress},exportpath=/srv/rozofs/exports/${name}${mount_instance},${options}",
       require => File["/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}"];
   }
 }
