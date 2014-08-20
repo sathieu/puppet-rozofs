@@ -25,6 +25,12 @@
 # [*hquota*]
 #   Hard quota
 #
+# [*options*]
+#   Mount options
+#
+# [*instance*]
+#   Mount instance number
+#
 # Note: volume expand or shrink is not supported
 define rozofs::export (
   $vid,
@@ -32,7 +38,7 @@ define rozofs::export (
   $password = undef,
   $squota = undef,
   $hquota = undef,
-  $options = 'posixlock,bsdlock,rozofsshaper=0',
+  $options = 'rozofsshaper=0',
   $instance = undef,
 ) {
   if !$rozofs::exportd_ipaddress {
