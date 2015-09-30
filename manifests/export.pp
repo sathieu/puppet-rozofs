@@ -82,25 +82,10 @@ define rozofs::export (
         before  => Mount["/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}"],
     }
   }
-  $mountpoint_directory_ensure = $ensure ? {
-    'absent'  => 'absent',
-    default   => 'directory',
-  }
-  file {
-    "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}":
-      ensure => $mountpoint_directory_ensure;
-  }
-  $mount_instance = $instance ? {
-    undef    => '',
-    /[0-9]+/ => ",instance=${instance}",
-    default  => fail('Parameter $instance should be an integer or undef'),
-  }
-  mount {
-    "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}":
-      ensure  => $ensure,
-      device  => 'rozofsmount',
-      fstype  => 'rozofs',
-      options => "noauto,exporthost=${rozofs::exportd_ipaddress},exportpath=/srv/rozofs/exports/${name}${mount_instance},${options}",
-      require => File["/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}"];
+  ::rozofs::mount { "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}":
+    ensure     => $ensure,
+    exportpath => "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}",
+    options    => $options,
+    instance   => $instance,
   }
 }
