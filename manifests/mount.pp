@@ -67,7 +67,7 @@ define rozofs::mount (
     creates => $name,
   } ->
   # Mounting
-  ::mount {
+  mount {
     $name:
       ensure  => $ensure,
       device  => 'rozofsmount',
