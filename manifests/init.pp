@@ -412,7 +412,7 @@ class rozofs (
     # Don't scan RozoFS mountpoints (potentially huge)
     exec {
       'updatedb-prune-rozofs':
-        command => "sed -i 's/PRUNEFS=\"\\(.*\\)\"/PRUNEFS=\"\\1 fuse.rozofs\"/' '${rozofs::updatedb_file}'",
+        command => "sed -i 's/\\(PRUNEFS\\s*=\\s*\"\\)\\(.*\\)\"/\\1\\2 fuse.rozofs\"/' '${rozofs::updatedb_file}'",
         unless  => "grep -q fuse.rozofs '${rozofs::updatedb_file}'";
     }
   }
