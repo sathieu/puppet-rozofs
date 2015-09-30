@@ -72,13 +72,13 @@ define rozofs::export (
     exec {
       "rozo-export-remove-${name}":
         command => "echo 'You need to remove export ${name} manually' ; false",
-        onlyif  => "rozo export -E '${rozofs::exportd_ipaddress}' list | grep '^\\s*-\\s*{root:' | grep '/${name}}\$'",
+        onlyif  => "rozo export list -E '${rozofs::exportd_ipaddress}' | grep '^\\s*-\\s*{root:' | grep '/${name}}\$'",
     }
   } else {
     exec {
       "rozo-export-create-${name}":
-        command => "rozo export -E '${rozofs::exportd_ipaddress}' create -n '${name}' ${password_arg} ${squota_arg} ${hquota_arg} ${vid}",
-        unless  => "rozo export -E '${rozofs::exportd_ipaddress}' list | grep '^\\s*-\\s*{root:' | grep '/${name}}\$'",
+        command => "rozo export create -E '${rozofs::exportd_ipaddress}' -n '${name}' ${password_arg} ${squota_arg} ${hquota_arg} ${vid}",
+        unless  => "rozo export list -E '${rozofs::exportd_ipaddress}' | grep '^\\s*-\\s*{root:' | grep '/${name}}\$'",
         before  => Mount["/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}"],
     }
   }
