@@ -84,7 +84,7 @@ define rozofs::export (
   }
   ::rozofs::mount { "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}":
     ensure     => $ensure,
-    exportpath => "/mnt/rozofs@${rozofs::exportd_ipaddress}/${name}",
+    exportpath => "/srv/rozofs/exports/${name}",
     options    => $options,
     instance   => $instance,
   }
