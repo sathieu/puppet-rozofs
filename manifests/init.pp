@@ -408,7 +408,7 @@ class rozofs (
     }
   }
 
-  if $rozofs::updatedb_file {
+  if $bool_manage_rozofsmount and $rozofs::updatedb_file {
     # Don't scan RozoFS mountpoints (potentially huge)
     exec {
       'updatedb-prune-rozofs':
