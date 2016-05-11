@@ -50,10 +50,11 @@ define rozofs::mount (
     'absent'  => 'absent',
     default   => 'directory',
   }
-  $mount_instance = $instance ? {
-    undef    => '',
-    /[0-9]+/ => ",instance=${instance}",
-    default  => fail('Parameter $instance should be an integer or undef'),
+  if $instance == undef {
+    $mount_instance = ''
+  } else {
+    validate_integer($instance)
+    $mount_instance = ",instance=${instance}"
   }
   $mount_options = $options ? {
     ''      => '',
