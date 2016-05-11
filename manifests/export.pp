@@ -47,7 +47,7 @@ define rozofs::export (
   if !$rozofs::bool_is_manager_agent {
     fail('$rozofs::is_manager_agent should be true')
   }
-  if !defined(Rozofs::Volume[$vid]) {
+  if !defined(Rozofs::Volume["${vid}"]) { # lint:ignore:only_variable_string Conversion to string
     fail("Rozofs::Volume[${vid}] is missing")
   }
   if !($ensure in ['defined', 'present', 'unmounted', 'absent', 'mounted']) {
