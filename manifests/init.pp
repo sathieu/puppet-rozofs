@@ -411,9 +411,17 @@ class rozofs (
   if $bool_manage_rozofsmount and $rozofs::updatedb_file {
     # Don't scan RozoFS mountpoints (potentially huge)
     exec {
-      'updatedb-prune-rozofs':
+      'updatedb-prunefs-rozofs':
         command => "sed -i 's/\\(PRUNEFS\\s*=\\s*\"\\)\\(.*\\)\"/\\1\\2 fuse.rozofs\"/' '${rozofs::updatedb_file}'",
-        unless  => "grep -q fuse.rozofs '${rozofs::updatedb_file}'";
+        unless  => "grep -q 'PRUNEFS=.*fuse.rozofs' '${rozofs::updatedb_file}'";
+    }
+  }
+  if ($bool_manage_exportd or $bool_manage_storaged) and $rozofs::updatedb_file {
+    # Don't scan RozoFS data (potentially huge)
+    exec {
+      'updatedb-prunepath-rozofs':
+        command => "sed -i 's@\\(PRUNEPATHS\\s*=\\s*\"\\)\\(.*\\)\"@\\1\\2 /srv/rozofs\"@' '${rozofs::updatedb_file}'",
+        unless  => "grep -q 'PRUNEPATHS=.*/srv/rozofs' '${rozofs::updatedb_file}'";
     }
   }
 
