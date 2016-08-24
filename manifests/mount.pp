@@ -43,6 +43,9 @@ define rozofs::mount (
   if !$rozofs::exportd_ipaddress {
     fail('$rozofs::exportd_ipaddress is mandatory')
   }
+  if $rozofs::absent or !$rozofs::manage_rozofsmount {
+    fail('$rozofs::manage_rozofsmount=true is mandatory (and $rozofs::absent=false)')
+  }
   if !($ensure in ['defined', 'present', 'unmounted', 'absent', 'mounted']) {
     fail('Parameter $ensure should be one of: defined (also called present), unmounted, absent, mounted')
   }
