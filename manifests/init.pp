@@ -126,11 +126,6 @@
 #   Can be defined also by the (top scope) variables $rozofs_audit_only
 #   and $audit_only
 #
-# [*noops*]
-#   Set noop metaparameter to true for all the resources managed by the module.
-#   Basically you can run a dryrun for this specific module if you set
-#   this to true. Default: false
-#
 # Default class params - As defined in rozofs::params.
 # Note that these variables are mostly defined and used in the module itself,
 # overriding the default values might not affected all the involved components.
@@ -215,7 +210,6 @@ class rozofs (
   $firewall_dst              = params_lookup( 'firewall_dst' , 'global' ),
   $debug                     = params_lookup( 'debug' , 'global' ),
   $audit_only                = params_lookup( 'audit_only' , 'global' ),
-  $noops                     = params_lookup( 'noops' ),
   $manager_package           = params_lookup( 'manager_package' ),
   $exportd_package           = params_lookup( 'exportd_package' ),
   $storaged_package          = params_lookup( 'storaged_package' ),
@@ -247,7 +241,6 @@ class rozofs (
   $bool_firewall=any2bool($firewall)
   $bool_debug=any2bool($debug)
   $bool_audit_only=any2bool($audit_only)
-  $bool_noops=any2bool($noops)
 
   $bool_is_manager_agent = any2bool($rozofs::is_manager_agent)
   $bool_manage_exportd = any2bool($rozofs::manage_exportd)
@@ -336,19 +329,15 @@ class rozofs (
   ### Managed resources
   package { $rozofs::manager_package:
     ensure  => bool2ensure($rozofs::is_manager_agent),
-    noop    => $rozofs::bool_noops,
   }
   package { $rozofs::exportd_package:
     ensure  => bool2ensure($rozofs::manage_exportd),
-    noop    => $rozofs::bool_noops,
   }
   package { $rozofs::storaged_package:
     ensure  => bool2ensure($rozofs::manage_storaged),
-    noop    => $rozofs::bool_noops,
   }
   package { $rozofs::rozofsmount_package:
     ensure  => bool2ensure($rozofs::manage_rozofsmount),
-    noop    => $rozofs::bool_noops,
   }
 
   if $rozofs::layout and $rozofs::exportd_ipaddress and $rozofs::bool_is_manager_agent {
@@ -367,7 +356,6 @@ class rozofs (
       hasstatus  => $rozofs::service_status,
       pattern    => $rozofs::process,
       require    => Package[$rozofs::manager_package],
-      noop       => $rozofs::bool_noops,
     }
   }
   if $bool_manage_exportd {
@@ -378,7 +366,6 @@ class rozofs (
       hasstatus  => $rozofs::service_status,
       pattern    => $rozofs::process,
       require    => Package[$rozofs::exportd_package],
-      noop       => $rozofs::bool_noops,
     }
   }
   if $bool_manage_storaged {
@@ -389,7 +376,6 @@ class rozofs (
       hasstatus  => $rozofs::service_status,
       pattern    => $rozofs::process,
       require    => Package[$rozofs::storaged_package],
-      noop       => $rozofs::bool_noops,
     }
   }
 
@@ -404,7 +390,6 @@ class rozofs (
       notify  => $rozofs::manage_service_autorestart,
       content => template($config_file_init_template),
       audit   => $rozofs::manage_audit,
-      noop    => $rozofs::bool_noops,
     }
   }
 
@@ -438,7 +423,6 @@ class rozofs (
       ensure    => $rozofs::manage_file,
       variables => $classvars,
       helper    => $rozofs::puppi_helper,
-      noop      => $rozofs::bool_noops,
     }
   }
 
@@ -452,7 +436,6 @@ class rozofs (
         target   => $rozofs::monitor_target,
         tool     => $rozofs::monitor_tool,
         enable   => $rozofs::manage_monitor,
-        noop     => $rozofs::bool_noops,
       }
     }
     if $rozofs::service != '' {
@@ -464,7 +447,6 @@ class rozofs (
         argument => $rozofs::process_args,
         tool     => $rozofs::monitor_tool,
         enable   => $rozofs::manage_monitor,
-        noop     => $rozofs::bool_noops,
       }
     }
   }
@@ -481,7 +463,6 @@ class rozofs (
       direction   => 'input',
       tool        => $rozofs::firewall_tool,
       enable      => $rozofs::manage_firewall,
-      noop        => $rozofs::bool_noops,
     }
   }
 
@@ -495,7 +476,6 @@ class rozofs (
       owner   => 'root',
       group   => 'root',
       content => inline_template('<%= scope.to_hash.reject { |k,v| k.to_s =~ /(uptime.*|path|timestamp|free|.*password.*|.*psk.*|.*key)/ }.to_yaml %>'),
-      noop    => $rozofs::bool_noops,
     }
   }
 

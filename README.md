@@ -69,12 +69,6 @@ For detailed info about the logic and usage patterns of Example42 modules check 
           audit_only => true
         }
 
-* Module dry-run: Do not make any change on *all* the resources provided by the module
-
-        class { 'rozofs':
-          noops => true
-        }
-
 
 ## USAGE - Overrides and Customizations
 * Automatically include a custom subclass
