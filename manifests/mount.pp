@@ -30,6 +30,7 @@
 #
 define rozofs::mount (
   $exportpath,
+  $exporthost = 'auto',
   $ensure = 'mounted',
   $options = 'rozofsshaper=0',
   $instance = undef,
@@ -40,11 +41,16 @@ define rozofs::mount (
   # ===============================================================
   # Validation and variables
   # ===============================================================
-  if !$rozofs::exportd_ipaddress {
-    fail('$rozofs::exportd_ipaddress is mandatory')
-  }
-  if $rozofs::absent or !$rozofs::manage_rozofsmount {
-    fail('$rozofs::manage_rozofsmount=true is mandatory (and $rozofs::absent=false)')
+  if $exporthost == 'auto' {
+    if !$rozofs::exportd_ipaddress {
+      fail('$rozofs::exportd_ipaddress is mandatory')
+    }
+    if $rozofs::absent or !$rozofs::manage_rozofsmount {
+      fail('$rozofs::manage_rozofsmount=true is mandatory (and $rozofs::absent=false)')
+    }
+    $_exporthost = $rozofs::exportd_ipaddress
+  } else {
+    $_exporthost = $exporthost
   }
   if !($ensure in ['defined', 'present', 'unmounted', 'absent', 'mounted']) {
     fail('Parameter $ensure should be one of: defined (also called present), unmounted, absent, mounted')
@@ -76,7 +82,7 @@ define rozofs::mount (
       ensure  => $ensure,
       device  => 'rozofsmount',
       fstype  => 'rozofs',
-      options => "exporthost=${::rozofs::exportd_ipaddress},exportpath=${exportpath},_netdev${mount_instance}${mount_options}",
+      options => "exporthost=${_exporthost},exportpath=${exportpath},_netdev${mount_instance}${mount_options}",
       require => Package['rozofs-rozofsmount'],
   } ->
   # Fixing permissions
